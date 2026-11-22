@@ -6,11 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/__pruebas/MainDemo_Casa360.unity
-    guid: 27b70ff8939f21f47866ae77798600e2
-  - enabled: 1
     path: Assets/PickABoo/Scenes/MainDemo.unity
-    guid: c8714aa8a0beaf3409e066a28f3eccf2
+    guid: 11bae564a4433404e806fc99d1214ec0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 97593b30b585f1d4f8fc24dc2bf36b94, type: 2}
