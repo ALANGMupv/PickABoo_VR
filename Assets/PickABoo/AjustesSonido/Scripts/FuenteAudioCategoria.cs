@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PickABoo.AjustesSonido
 {
     /// <summary>
-    /// Ponlo junto a cualquier AudioSource del juego y elige su categoría (Música, Efectos, Ambiente).
+    /// Ponlo junto a cualquier AudioSource del juego y elige su categoría (Efectos o Ambiente).
     /// Su volumen seguirá automáticamente al menú de sonido. "Volumen base" es el volumen propio del sonido.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]

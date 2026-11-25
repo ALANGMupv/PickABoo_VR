@@ -18,11 +18,14 @@ namespace PickABoo.Menu
         public CanvasGroup paginas;            // Canvas con el Book
         public AutoFlip pasaPaginas;
         public Button botonAnterior, botonSiguiente;
+        [Tooltip("Colisión de la mitad que aparece al abrir el libro (para que la mano no la atraviese)")]
+        public Collider colisionAbierto;
         public float duracionApertura = 0.45f;
 
         XRGrabInteractable m_Agarre;
         Coroutine m_Anim;
         float m_Abierto;   // 0 cerrado, 1 abierto
+        ObjetoEncantado m_Encantado;
 
         void Awake()
         {
@@ -71,6 +74,10 @@ namespace PickABoo.Menu
             paginas.alpha = a;
             paginas.interactable = paginas.blocksRaycasts = a > 0.95f;
             paginas.gameObject.SetActive(a > 0.001f);
+            if (colisionAbierto) colisionAbierto.enabled = k > 0.5f;
+            // el brillo encantado se dibujaría por encima de las páginas: solo con el libro cerrado
+            if (m_Encantado == null) m_Encantado = GetComponent<ObjetoEncantado>();
+            if (m_Encantado) m_Encantado.MostrarAura(k < 0.05f);
         }
     }
 }

@@ -3,7 +3,11 @@ using UnityEngine;
 
 namespace PickABoo.AjustesSonido
 {
-    public enum CategoriaAudio { General, Musica, Efectos, Ambiente }
+    /// <summary>
+    /// Categorías de sonido. "Ambiente" agrupa todo lo que suena de fondo (música y ambiente de la casa);
+    /// "Efectos", lo que responde a lo que haces. Los números se mantienen fijos para no romper lo ya guardado en las escenas.
+    /// </summary>
+    public enum CategoriaAudio { General = 0, Efectos = 2, Ambiente = 3 }
 
     /// <summary>
     /// Volúmenes del juego por categoría (0-1), guardados en PlayerPrefs.

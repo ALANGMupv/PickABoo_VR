@@ -32,7 +32,7 @@ namespace PickABoo.UI
         {
             float k = Mathf.SmoothStep(0, 1, m_Pos);
             bola.anchoredPosition = new Vector2(Mathf.Lerp(-recorrido, recorrido, k) * 0.5f, 0);
-            pista.color = Color.Lerp(PaletaPickABoo.GranateClaro, PaletaPickABoo.Mostaza, k);
+            pista.color = Color.Lerp(PaletaPickABoo.Apagado, PaletaPickABoo.Mostaza, k);
         }
     }
 }

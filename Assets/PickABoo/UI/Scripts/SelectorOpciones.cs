@@ -27,7 +27,7 @@ namespace PickABoo.UI
             for (int j = 0; j < opciones.Length; j++)
             {
                 bool on = j == i;
-                opciones[j].targetGraphic.color = on ? PaletaPickABoo.Mostaza : PaletaPickABoo.GranateClaro;
+                opciones[j].targetGraphic.color = on ? PaletaPickABoo.Mostaza : PaletaPickABoo.Apagado;
                 var t = opciones[j].GetComponentInChildren<TMP_Text>();
                 if (t) t.color = on ? PaletaPickABoo.Granate : PaletaPickABoo.Crema;
             }

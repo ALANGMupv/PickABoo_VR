@@ -81,6 +81,12 @@ namespace PickABoo.Menu
         IEnumerator Transicion(MovilJugar movil)
         {
             foreach (var o in objetosMenu) if (o && o.gameObject != movil.gameObject) o.Apagar();
+            // el escáner se queda en la mano del jugador durante toda la partida: ya no se puede soltar
+            var agarreMovil = movil.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+            var encantado = movil.GetComponent<ObjetoEncantado>();
+            if (encantado) encantado.Apagar(0.8f, false);
+            foreach (var mano in m_Origen.GetComponentsInChildren<PickABoo.Jugador.ManoMando>(true))
+                if (mano.Sostiene(agarreMovil)) { mano.Fijar(); break; }
             yield return new WaitForSeconds(0.6f);
 
             // movimiento guiado con viñeta de confort; el jugador no controla el desplazamiento mientras dura
