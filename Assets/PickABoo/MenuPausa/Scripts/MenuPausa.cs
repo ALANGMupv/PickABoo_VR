@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using PickABoo.Transiciones;
 using PickABoo.UI;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -24,17 +23,17 @@ namespace PickABoo.MenuPausa
         [Header("Botones")]
         public Button botonContinuar;
         public Button botonMenuPrincipal;
-        public TMP_Text textoMenuPrincipal;
+        [Tooltip("Ventana que pide confirmación antes de volver al menú principal")]
+        public DialogoConfirmacion dialogo;
         [Header("Colocación")]
         public float distancia = 0.85f;
         public float bajada = 0.12f;
         public float duracionFundido = 0.2f;
 
         InputAction m_Boton;
-        bool m_Abierto, m_Confirmando;
-        Coroutine m_Anim, m_Confirmacion;
+        bool m_Abierto;
+        Coroutine m_Anim;
         readonly List<LocomotionProvider> m_Parados = new List<LocomotionProvider>();
-        string m_TextoMenuPrincipal;
 
         public bool Abierto => m_Abierto;
 
@@ -48,7 +47,6 @@ namespace PickABoo.MenuPausa
 
             botonContinuar.onClick.AddListener(Cerrar);
             botonMenuPrincipal.onClick.AddListener(MenuPrincipal);
-            m_TextoMenuPrincipal = textoMenuPrincipal.text;
 
             selectorGiro.Cambio += i => GestorPreferencias.GiroContinuo = i == 1;
             interruptorMareo.onValueChanged.AddListener(v => GestorPreferencias.ReducirMareo = v);
@@ -82,7 +80,7 @@ namespace PickABoo.MenuPausa
 
             selectorGiro.Fijar(GestorPreferencias.GiroContinuo ? 1 : 0);
             interruptorMareo.SetIsOnWithoutNotify(GestorPreferencias.ReducirMareo);
-            CancelarConfirmacion();
+            if (dialogo) dialogo.Cerrar();
 
             // parar el movimiento mientras está abierto
             m_Parados.Clear();
@@ -96,6 +94,7 @@ namespace PickABoo.MenuPausa
         {
             if (!m_Abierto) return;
             m_Abierto = false;
+            if (dialogo) dialogo.Cerrar();
             foreach (var p in m_Parados) if (p) p.enabled = true;
             m_Parados.Clear();
             Animar(0);
@@ -103,29 +102,12 @@ namespace PickABoo.MenuPausa
 
         void MenuPrincipal()
         {
-            // primera pulsación: pedir confirmación; segunda: salir
-            if (!m_Confirmando)
+            // se pregunta en una ventana propia para que el texto se lea entero y la salida no sea accidental
+            dialogo.Preguntar("¿Volver al menú principal?", "Perderás el progreso de esta partida.", "Sí, volver", () =>
             {
-                m_Confirmando = true;
-                textoMenuPrincipal.text = "¿Seguro? Pulsa otra vez";
-                m_Confirmacion = StartCoroutine(AnularConfirmacion());
-                return;
-            }
-            botonMenuPrincipal.interactable = botonContinuar.interactable = false;
-            CargadorEscenas.Ir("Menu", Color.black, 0.5f);
-        }
-
-        IEnumerator AnularConfirmacion()
-        {
-            yield return new WaitForSecondsRealtime(3f);
-            CancelarConfirmacion();
-        }
-
-        void CancelarConfirmacion()
-        {
-            if (m_Confirmacion != null) StopCoroutine(m_Confirmacion);
-            m_Confirmando = false;
-            textoMenuPrincipal.text = m_TextoMenuPrincipal;
+                botonMenuPrincipal.interactable = botonContinuar.interactable = false;
+                CargadorEscenas.Ir("Menu", Color.black, 0.5f);
+            });
         }
 
         void Animar(float destino)
