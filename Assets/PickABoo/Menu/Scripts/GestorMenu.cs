@@ -75,6 +75,10 @@ namespace PickABoo.Menu
         {
             if (m_Jugando) return;
             m_Jugando = true;
+            // el menú de pausa no se abre durante el viaje guiado (reactivaría el movimiento a mitad)
+            MenuPausa.MenuPausa.Bloqueado = true;
+            var pausa = FindFirstObjectByType<MenuPausa.MenuPausa>();
+            if (pausa) pausa.Cerrar();
             StartCoroutine(Transicion(movil));
         }
 
@@ -116,6 +120,7 @@ namespace PickABoo.Menu
             if (vineta) vineta.EndTunnelingVignette(this);
             foreach (var p in proveedores) if (p) p.enabled = true;
             LimitarAEntrada(false);
+            MenuPausa.MenuPausa.Bloqueado = false;
 
             // el escáner se queda en la casa; el resto del menú se descarga
             var casa = SceneManager.GetSceneByName(escenaCasa);
