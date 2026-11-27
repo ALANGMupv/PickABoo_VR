@@ -49,8 +49,27 @@ namespace PickABoo.Video360
             if (f) f.Fijar(new Color(CargadorEscenas.ColorEntrada.r, CargadorEscenas.ColorEntrada.g, CargadorEscenas.ColorEntrada.b, 1));
             m_Video.Prepare();
             while (!m_Video.isPrepared) yield return null;
+            AjustarTextura();
             m_Video.Play();
             if (f) yield return f.Aparecer(1.2f);
+        }
+
+        // La textura del cielo tiene el tamaño real del vídeo que se reproduce: 8K en el PC y la versión 4K
+        // en las gafas (Android). Se crea una copia para no modificar los recursos del proyecto.
+        void AjustarTextura()
+        {
+            var actual = m_Video.targetTexture;
+            int w = (int)m_Video.width, h = (int)m_Video.height;
+            if (actual == null || w == 0 || (actual.width == w && actual.height == h)) return;
+            var rt = new RenderTexture(w, h, 0, actual.graphicsFormat) { name = "RT_Video360_" + w, useMipMap = false, wrapMode = actual.wrapMode, filterMode = actual.filterMode };
+            rt.Create();
+            m_Video.targetTexture = rt;
+            if (cielo360)
+            {
+                var cielo = new Material(cielo360);
+                cielo.SetTexture("_MainTex", rt);
+                RenderSettings.skybox = cielo;
+            }
         }
 
         public void PlayPausa() { if (m_Video.isPlaying) m_Video.Pause(); else m_Video.Play(); }
