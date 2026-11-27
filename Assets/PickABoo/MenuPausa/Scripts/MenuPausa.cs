@@ -11,8 +11,8 @@ using UnityEngine.XR.Interaction.Toolkit.Locomotion;
 namespace PickABoo.MenuPausa
 {
     /// <summary>
-    /// Menú de pausa de la partida: se abre y cierra con el botón ≡ del mando izquierdo (Esc en el editor).
-    /// Aparece delante del jugador; mientras está abierto no se puede mover ni girar.
+    /// Menú de pausa y ajustes: se abre y cierra con el botón ≡ del mando izquierdo (Esc en el editor),
+    /// en la entrada y en la partida. Aparece delante del jugador; mientras está abierto no se puede mover ni girar.
     /// </summary>
     public class MenuPausa : MonoBehaviour
     {
@@ -39,6 +39,7 @@ namespace PickABoo.MenuPausa
 
         void Awake()
         {
+            Bloqueado = false;
             m_Boton = new InputAction("Pausa", InputActionType.Button);
             m_Boton.AddBinding("<XRController>{LeftHand}/{MenuButton}");
             m_Boton.AddBinding("<XRController>{LeftHand}/menu");
@@ -59,14 +60,17 @@ namespace PickABoo.MenuPausa
         void OnDisable() { m_Boton.Disable(); }
         void OnDestroy() { m_Boton.Dispose(); }
 
-        // En la escena del menú principal no hay partida que pausar.
-        static bool EnMenuPrincipal => SceneManager.GetSceneByName("Menu").isLoaded || SceneManager.GetSceneByName("Video360").isLoaded;
+        // En la entrada (escena Menu) el menú sirve igual para el sonido y los ajustes, pero sin "Menú principal".
+        static bool EnMenuPrincipal => SceneManager.GetSceneByName("Menu").isLoaded;
+
+        /// <summary>Impide abrirlo (p. ej. durante el viaje guiado al empezar la partida).</summary>
+        public static bool Bloqueado { get; set; }
 
         public void Alternar() { if (m_Abierto) Cerrar(); else Abrir(); }
 
         public void Abrir()
         {
-            if (m_Abierto || EnMenuPrincipal) return;
+            if (m_Abierto || Bloqueado) return;
             var cam = Camera.main;
             if (cam == null) return;
             m_Abierto = true;
@@ -80,6 +84,7 @@ namespace PickABoo.MenuPausa
 
             selectorGiro.Fijar(GestorPreferencias.GiroContinuo ? 1 : 0);
             interruptorMareo.SetIsOnWithoutNotify(GestorPreferencias.ReducirMareo);
+            botonMenuPrincipal.gameObject.SetActive(!EnMenuPrincipal);
             if (dialogo) dialogo.Cerrar();
 
             // parar el movimiento mientras está abierto
