@@ -18,10 +18,13 @@ namespace PickABoo.Video360
         public AudioSource fuenteAudio;                 // con FuenteAudioCategoria (Música)
         public Material cielo360;                       // Skybox/Panoramic con la RenderTexture
         [Range(0, 360)] public float orientacionInicial = 0f;   // ajusta hacia dónde mira el vídeo al empezar
+        [Tooltip("Vídeo dentro de StreamingAssets. Se reproduce tal cual (sin que Unity lo convierta): " +
+                 "el 8K en HEVC no se puede importar como VideoClip en Windows, pero las gafas sí lo decodifican.")]
+        public string videoStreaming = "Video360/PickABoo_Trailer360_8K.mp4";
 
         VideoPlayer m_Video;
         FuenteAudioCategoria m_Categoria;
-        bool m_Saliendo;
+        bool m_Saliendo, m_Error;
 
         public event Action Terminado;
         public bool Reproduciendo => m_Video.isPlaying;
@@ -36,6 +39,17 @@ namespace PickABoo.Video360
             m_Video = GetComponent<VideoPlayer>();
             m_Categoria = fuenteAudio ? fuenteAudio.GetComponent<FuenteAudioCategoria>() : null;
             m_Video.playOnAwake = false;
+            if (!string.IsNullOrEmpty(videoStreaming))
+            {
+                m_Video.source = VideoSource.Url;
+                // con "/" también vale en Android (jar:file://...!/assets/...)
+                m_Video.url = Application.streamingAssetsPath + "/" + videoStreaming;
+            }
+            m_Video.errorReceived += (_, msg) =>
+            {
+                m_Error = true;
+                Debug.LogWarning("No se puede reproducir el vídeo 360 en este dispositivo (en el PC, Windows no decodifica HEVC 8K; en las gafas sí): " + msg);
+            };
             m_Video.audioOutputMode = VideoAudioOutputMode.AudioSource;
             m_Video.EnableAudioTrack(0, true);
             m_Video.SetTargetAudioSource(0, fuenteAudio);
@@ -48,9 +62,9 @@ namespace PickABoo.Video360
             var f = Fundido.Instancia;
             if (f) f.Fijar(new Color(CargadorEscenas.ColorEntrada.r, CargadorEscenas.ColorEntrada.g, CargadorEscenas.ColorEntrada.b, 1));
             m_Video.Prepare();
-            while (!m_Video.isPrepared) yield return null;
-            AjustarTextura();
-            m_Video.Play();
+            // si el vídeo no se puede abrir no se queda en negro: aparece la escena con el panel para volver
+            while (!m_Video.isPrepared && !m_Error) yield return null;
+            if (!m_Error) { AjustarTextura(); m_Video.Play(); }
             if (f) yield return f.Aparecer(1.2f);
         }
 

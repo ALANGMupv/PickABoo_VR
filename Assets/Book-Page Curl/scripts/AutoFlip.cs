@@ -18,6 +18,12 @@ public class AutoFlip : MonoBehaviour {
             StartFlipping();
         ControledBook.OnFlip.AddListener(new UnityEngine.Events.UnityAction(PageFlipped));
 	}
+    // PickABoo: si se interrumpe a mitad (p. ej. al soltar el libro), deja de nuevo pasar hojas.
+    public void Cancelar()
+    {
+        StopAllCoroutines();
+        isFlipping = false;
+    }
     void PageFlipped()
     {
         isFlipping = false;

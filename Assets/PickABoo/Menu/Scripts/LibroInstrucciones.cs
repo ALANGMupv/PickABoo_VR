@@ -42,8 +42,8 @@ namespace PickABoo.Menu
 
         void OnDestroy()
         {
-            if (pasaPaginas && pasaPaginas.ControledBook)
-                pasaPaginas.ControledBook.OnFlipStarted -= SonarPagina;
+            if (pasaPaginas && Libro)
+                Libro.OnFlipStarted -= SonarPagina;
         }
 
         void SonarPagina() => StartCoroutine(ReproducirPagina());
@@ -54,23 +54,39 @@ namespace PickABoo.Menu
             if (m_Agarre.isSelected)
                 AudioDemo.Efecto("sonidoPaginasLibro", transform.position, 0.48f, 1.12f, seguir: transform);
         }
+        Book Libro => pasaPaginas.ControledBook ? pasaPaginas.ControledBook : pasaPaginas.GetComponent<Book>();
+
+        // una sola hoja a la vez: ni gatillo ni flechas mientras otra se arrastra o cae
+        bool PuedePasar => m_Abierto >= 0.99f && !Libro.Ocupado;
 
         public void Siguiente()
         {
-            if (m_Abierto < 0.99f) return;
-            if (pasaPaginas.ControledBook.currentPage >= pasaPaginas.ControledBook.TotalPageCount) return;
+            if (!PuedePasar) return;
+            if (Libro.currentPage >= Libro.TotalPageCount) return;
             pasaPaginas.FlipRightPage();
         }
 
         public void Anterior()
         {
-            if (m_Abierto < 0.99f) return;
+            if (!PuedePasar) return;
             pasaPaginas.FlipLeftPage();
+        }
+
+        // Si se suelta (o se cambia de mano) con una hoja a medio pasar, se deja el libro en su página
+        // antes de que las páginas se oculten; si no, la hoja se quedaría doblada al volver a abrirlo.
+        void Asentar()
+        {
+            if (!paginas.gameObject.activeInHierarchy) return;
+            if (!Libro.Ocupado) return;
+            pasaPaginas.Cancelar();
+            Libro.Asentar();
         }
 
         void Animar(bool abrir)
         {
+            Asentar();
             AudioDemo.Efecto("sonidoPaginasLibro", transform.position, 0.46f, abrir ? 0.95f : 0.82f, seguir: transform);
+ 
             if (m_Anim != null) StopCoroutine(m_Anim);
             m_Anim = StartCoroutine(Abrir(abrir ? 1f : 0f));
         }
@@ -91,6 +107,7 @@ namespace PickABoo.Menu
             float a = Mathf.InverseLerp(0.45f, 0.9f, k);
             paginas.alpha = a;
             paginas.interactable = paginas.blocksRaycasts = a > 0.95f;
+            if (a <= 0.001f && pasaPaginas) Asentar();
             paginas.gameObject.SetActive(a > 0.001f);
             if (colisionAbierto) colisionAbierto.enabled = k > 0.5f;
             // el brillo encantado se dibujaría por encima de las páginas: solo con el libro cerrado

@@ -45,7 +45,8 @@ namespace PickABoo.Menu
 
         public void OnBeginDrag(PointerEventData e)
         {
-            if (!PuntoLocal(e, out var p)) return;
+            // no se coge una hoja mientras otra está pasando (gatillo, flechas o la anterior aún cayendo)
+            if (m_Libro.Ocupado || !PuntoLocal(e, out var p)) return;
             m_HaciaDelante = p.x > 0;
             if (m_HaciaDelante && m_Libro.currentPage >= m_Libro.bookPages.Length) return;
             if (!m_HaciaDelante && m_Libro.currentPage <= 0) return;
@@ -69,13 +70,14 @@ namespace PickABoo.Menu
         void Update()
         {
             if (!m_Arrastrando) return;
+            // el libro ha soltado la hoja por su cuenta (p. ej. se ha asentado al soltar el libro)
+            if (!m_Libro.PaginaEnArrastre) { m_Arrastrando = false; return; }
             m_Actual = Vector3.Lerp(m_Actual, m_Objetivo, Time.deltaTime * suavizado);
             if (m_HaciaDelante) m_Libro.UpdateBookRTLToPoint(m_Actual); else m_Libro.UpdateBookLTRToPoint(m_Actual);
         }
 
-        void OnDisable()
-        {
-            if (m_Arrastrando) { m_Arrastrando = false; m_Libro.ReleasePage(); }
-        }
+        // al ocultarse el libro LibroInstrucciones ya lo deja asentado; aquí solo se olvida el arrastre
+        // (soltar la hoja aquí lanzaría una animación sobre un objeto que se está apagando)
+        void OnDisable() { m_Arrastrando = false; }
     }
 }

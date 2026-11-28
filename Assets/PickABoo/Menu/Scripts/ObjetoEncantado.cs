@@ -37,6 +37,10 @@ namespace PickABoo.Menu
 
         public XRGrabInteractable Agarre => m_Agarre;
         public bool Cogido => m_Cogido;
+        /// <summary>Quieto en su sitio y aún encantado (ni en la mano, ni volviendo, ni apagado).</summary>
+        public bool EnReposo => !m_Cogido && !m_Volviendo && !m_Apagado;
+        public bool Apuntado => m_RealceObjetivo > 0f;
+        public Vector3 PosicionReposo => m_PosReposo;
 
         void Awake()
         {

@@ -41,8 +41,13 @@ namespace PickABoo.Menu
             var casa = SceneManager.GetSceneByName(escenaCasa);
             if (!casa.isLoaded)
             {
+                // la cámara del jugador viene con la casa: hasta que no está cargada no hay nada que ver,
+                // así que la carga puede usar más tiempo de cada fotograma y termina antes
+                var prioridad = Application.backgroundLoadingPriority;
+                Application.backgroundLoadingPriority = ThreadPriority.High;
                 var op = SceneManager.LoadSceneAsync(escenaCasa, LoadSceneMode.Additive);
                 while (!op.isDone) yield return null;
+                Application.backgroundLoadingPriority = prioridad;
                 casa = SceneManager.GetSceneByName(escenaCasa);
             }
             SceneManager.SetActiveScene(casa);              // la luz, el cielo y las sondas son los de la casa
