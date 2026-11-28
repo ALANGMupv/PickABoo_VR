@@ -1,4 +1,5 @@
 using System.Collections;
+using PickABoo.Sonido;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -57,6 +58,7 @@ namespace PickABoo.Menu
             m_Pulsado = true;
             ObjetoEncantado.Vibrar(mano, 0.9f, 0.1f);
             if (sonidoTecla != null) sonidoTecla.Play();
+            else AudioDemo.Efecto("sonidoTeclaNokia", transform.position, 0.66f, seguir: transform);
             // pulsación de la tecla: el móvil se hunde y rebota
             Vector3 p0 = modelo.localPosition;
             Vector3 hundido = p0 + modelo.parent.InverseTransformDirection(pantalla.forward) * 0.006f;

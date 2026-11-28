@@ -1,4 +1,5 @@
 using System.Collections;
+using PickABoo.Sonido;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -35,7 +36,23 @@ namespace PickABoo.Menu
             m_Agarre.activated.AddListener(_ => Siguiente());
             botonSiguiente.onClick.AddListener(Siguiente);
             botonAnterior.onClick.AddListener(Anterior);
+            pasaPaginas.ControledBook.OnFlipStarted += SonarPagina;
             Aplicar(0f);
+        }
+
+        void OnDestroy()
+        {
+            if (pasaPaginas && pasaPaginas.ControledBook)
+                pasaPaginas.ControledBook.OnFlipStarted -= SonarPagina;
+        }
+
+        void SonarPagina() => StartCoroutine(ReproducirPagina());
+
+        IEnumerator ReproducirPagina()
+        {
+            yield return new WaitForSeconds(0.12f);
+            if (m_Agarre.isSelected)
+                AudioDemo.Efecto("sonidoPaginasLibro", transform.position, 0.48f, 1.12f, seguir: transform);
         }
 
         public void Siguiente()
@@ -53,6 +70,7 @@ namespace PickABoo.Menu
 
         void Animar(bool abrir)
         {
+            AudioDemo.Efecto("sonidoPaginasLibro", transform.position, 0.46f, abrir ? 0.95f : 0.82f, seguir: transform);
             if (m_Anim != null) StopCoroutine(m_Anim);
             m_Anim = StartCoroutine(Abrir(abrir ? 1f : 0f));
         }

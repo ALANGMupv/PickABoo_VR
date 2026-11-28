@@ -20,7 +20,8 @@ namespace PickABoo.AjustesSonido
         public void Aplicar()
         {
             if (m_Fuente == null) m_Fuente = GetComponent<AudioSource>();
-            m_Fuente.volume = volumenBase * GestorVolumen.Efectivo(categoria);
+            float ganancia = categoria == CategoriaAudio.Efectos ? 1.16f : 1f;
+            m_Fuente.volume = Mathf.Clamp01(volumenBase * GestorVolumen.Efectivo(categoria) * ganancia);
         }
     }
 }

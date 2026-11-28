@@ -1,4 +1,5 @@
 using PickABoo.AjustesSonido;
+using PickABoo.Sonido;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -18,6 +19,7 @@ namespace PickABoo.UI
         public float intervaloDeslizar = 0.08f;
 
         AudioSource m_Fuente;
+        AudioSource m_FuenteVolumen;
         float m_UltimoDeslizar;
 
         void Awake()
@@ -29,10 +31,29 @@ namespace PickABoo.UI
             foreach (var b in GetComponentsInChildren<Button>(true)) b.onClick.AddListener(Clic);
             foreach (var t in GetComponentsInChildren<Toggle>(true)) t.onValueChanged.AddListener(_ => Clic());
             foreach (var s in GetComponentsInChildren<Slider>(true))
-                if (s.interactable && s.GetComponent<Selectable>()) s.onValueChanged.AddListener(_ => Deslizar());
+            {
+                if (s.GetComponentInParent<ControlesSonido>(true)) ConectarDeslizadorVolumen(s);
+                else if (s.interactable) s.onValueChanged.AddListener(_ => Deslizar());
+            }
         }
 
         public void Clic() { if (clic) m_Fuente.PlayOneShot(clic); }
+
+        void ConectarDeslizadorVolumen(Slider deslizador)
+        {
+            if (!m_FuenteVolumen)
+                m_FuenteVolumen = AudioDemo.CrearFuente(transform, "Deslizador de volumen", CategoriaAudio.Efectos, 0.4f, 0f, 1f);
+
+            float ultimoNivel = -1f;
+            deslizador.onValueChanged.AddListener(_ =>
+            {
+                float nivel = deslizador.normalizedValue;
+                if (!deslizar || !deslizador.IsInteractable() || Mathf.Abs(nivel - ultimoNivel) < 0.04f) return;
+                ultimoNivel = nivel;
+                m_FuenteVolumen.pitch = Mathf.Lerp(0.8f, 1.4f, nivel);
+                m_FuenteVolumen.PlayOneShot(deslizar);
+            });
+        }
 
         void Deslizar()
         {

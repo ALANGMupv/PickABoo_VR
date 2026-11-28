@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using PickABoo.Sonido;
 using PickABoo.Transiciones;
 using Unity.XR.CoreUtils;
 using UnityEngine;
@@ -91,7 +92,9 @@ namespace PickABoo.Menu
             if (encantado) encantado.Apagar(0.8f, false);
             foreach (var mano in m_Origen.GetComponentsInChildren<PickABoo.Jugador.ManoMando>(true))
                 if (mano.Sostiene(agarreMovil)) { mano.Fijar(); break; }
-            yield return new WaitForSeconds(0.6f);
+            yield return new WaitForSeconds(0.36f);
+            AudioDemo.ComenzarViaje(m_Origen.Camera.transform.position);
+            yield return new WaitForSeconds(0.24f);
 
             // movimiento guiado con viñeta de confort; el jugador no controla el desplazamiento mientras dura
             var proveedores = m_Origen.GetComponentsInChildren<LocomotionProvider>().Where(p => p.enabled).ToList();
@@ -121,6 +124,7 @@ namespace PickABoo.Menu
             foreach (var p in proveedores) if (p) p.enabled = true;
             LimitarAEntrada(false);
             MenuPausa.MenuPausa.Bloqueado = false;
+            AudioDemo.LlegarACasa();
 
             // el escáner se queda en la casa; el resto del menú se descarga
             var casa = SceneManager.GetSceneByName(escenaCasa);

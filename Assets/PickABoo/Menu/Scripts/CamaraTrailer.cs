@@ -1,4 +1,5 @@
 using System.Collections;
+using PickABoo.Sonido;
 using PickABoo.Transiciones;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -47,6 +48,8 @@ namespace PickABoo.Menu
             }
             ObjetoEncantado.Vibrar(mano, 0.8f, 0.12f);
             if (sonidoFlash != null) sonidoFlash.Play();
+            else AudioDemo.Efecto("sonidoObturador", transform.position, 0.66f, seguir: transform);
+            AudioDemo.AtenuarParaSalir();
             // destello: blanco de golpe, un instante, y fundido a blanco total mientras carga el vídeo
             var f = Fundido.Instancia;
             yield return f.A(new Color(1, 1, 1, 0.85f), 0.06f);
