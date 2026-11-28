@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using PickABoo.Sonido;
 using PickABoo.Transiciones;
 using PickABoo.UI;
 using UnityEngine;
@@ -66,7 +67,15 @@ namespace PickABoo.MenuPausa
         /// <summary>Impide abrirlo (p. ej. durante el viaje guiado al empezar la partida).</summary>
         public static bool Bloqueado { get; set; }
 
-        public void Alternar() { if (m_Abierto) Cerrar(); else Abrir(); }
+        public void Alternar()
+        {
+            bool estabaAbierto = m_Abierto;
+            if (m_Abierto) Cerrar(); else Abrir();
+            if (estabaAbierto == m_Abierto) return;
+
+            var sonidos = GetComponentInChildren<SonidosUI>(true);
+            if (sonidos) AudioDemo.Efecto(sonidos.clic, transform.position, 0.45f, m_Abierto ? 0.90f : 0.78f, 0.25f);
+        }
 
         public void Abrir()
         {
@@ -111,6 +120,7 @@ namespace PickABoo.MenuPausa
             dialogo.Preguntar("¿Volver al menú principal?", "Perderás el progreso de esta partida.", "Sí, volver", () =>
             {
                 botonMenuPrincipal.interactable = botonContinuar.interactable = false;
+                AudioDemo.AtenuarParaSalir();
                 CargadorEscenas.Ir("Menu", Color.black, 0.5f);
             });
         }

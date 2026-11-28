@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using PickABoo.Sonido;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics;
@@ -50,7 +51,15 @@ namespace PickABoo.Menu
             CrearCapasAura();
             m_Agarre.hoverEntered.AddListener(a => { m_RealceObjetivo = 1.2f; Vibrar(a.interactorObject, 0.15f, 0.05f); });
             m_Agarre.hoverExited.AddListener(_ => m_RealceObjetivo = 0f);
-            m_Agarre.selectEntered.AddListener(a => { m_Cogido = true; m_Volviendo = false; StopAllCoroutines(); Vibrar(a.interactorObject, 0.35f, 0.08f); });
+            m_Agarre.selectEntered.AddListener(a =>
+            {
+                m_Cogido = true;
+                m_Volviendo = false;
+                StopAllCoroutines();
+                Vibrar(a.interactorObject, 0.35f, 0.08f);
+                if (!GetComponent<LibroInstrucciones>())
+                    AudioDemo.Efecto("sonidoRecogerObjeto", transform.position, 0.42f, seguir: transform);
+            });
             m_Agarre.selectExited.AddListener(_ => { m_Cogido = false; if (volverAlSoltar && !m_Apagado) StartCoroutine(VolverASuSitio()); });
         }
 
@@ -112,6 +121,7 @@ namespace PickABoo.Menu
             }
             transform.SetPositionAndRotation(m_PosReposo, m_RotReposo);
             m_Volviendo = false;
+            AudioDemo.Efecto("sonidoApoyarObjeto", transform.position, 0.44f, seguir: transform);
         }
 
         /// <summary>Apaga el encantamiento (al empezar la partida): el brillo y las chispas se desvanecen.</summary>

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using PickABoo.Sonido;
 using PickABoo.Transiciones;
 using PickABoo.UI;
 using UnityEngine;
@@ -106,6 +107,9 @@ namespace PickABoo.Salida
         IEnumerator Salir()
         {
             m_Saliendo = true;
+            AudioDemo.AtenuarParaSalir();
+            Vector3 origen = manillas.Length > 0 ? manillas[0].position : transform.position;
+            AudioDemo.Efecto("sonidoPestillo", origen, 0.60f);
             // las manillas bajan
             for (float t = 0; t < 0.3f; t += Time.deltaTime)
             {

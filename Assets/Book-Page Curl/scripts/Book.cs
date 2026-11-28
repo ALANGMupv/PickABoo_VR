@@ -50,6 +50,7 @@ public class Book : MonoBehaviour {
     public Image Right;
     public Image RightNext;
     public UnityEvent OnFlip;
+    public event System.Action OnFlipStarted;
     float radius1, radius2;
     //Spine Bottom
     Vector3 sb;
@@ -278,6 +279,7 @@ public class Book : MonoBehaviour {
     public void DragRightPageToPoint(Vector3 point)
     {
         if (currentPage >= bookPages.Length) return;
+        bool started = !pageDragging;
         pageDragging = true;
         mode = FlipMode.RightToLeft;
         f = point;
@@ -303,6 +305,7 @@ public class Book : MonoBehaviour {
         LeftNext.transform.SetAsFirstSibling();
         if (enableShadowEffect) Shadow.gameObject.SetActive(true);
         UpdateBookRTLToPoint(f);
+        if (started) OnFlipStarted?.Invoke();
     }
     public void OnMouseDragRightPage()
     {
@@ -313,6 +316,7 @@ public class Book : MonoBehaviour {
     public void DragLeftPageToPoint(Vector3 point)
     {
         if (currentPage <= 0) return;
+        bool started = !pageDragging;
         pageDragging = true;
         mode = FlipMode.LeftToRight;
         f = point;
@@ -337,6 +341,7 @@ public class Book : MonoBehaviour {
         RightNext.transform.SetAsFirstSibling();
         if (enableShadowEffect) ShadowLTR.gameObject.SetActive(true);
         UpdateBookLTRToPoint(f);
+        if (started) OnFlipStarted?.Invoke();
     }
     public void OnMouseDragLeftPage()
     {
