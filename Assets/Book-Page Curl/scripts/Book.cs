@@ -430,8 +430,33 @@ public class Book : MonoBehaviour {
                 ));
         }
     }
+    // PickABoo: true mientras una hoja se arrastra o termina de caer (no se puede empezar otra a la vez)
+    bool tweening;
+    public bool Ocupado => pageDragging || tweening;
+
+    // PickABoo: deja el libro quieto en la página actual, deshaciendo cualquier hoja a medio pasar.
+    // Se llama antes de ocultar las páginas: si se apagan a mitad de animación la hoja se quedaría doblada.
+    public void Asentar()
+    {
+        StopAllCoroutines();
+        pageDragging = false;
+        tweening = false;
+        Shadow.transform.SetParent(BookPanel.transform, true);
+        ShadowLTR.transform.SetParent(BookPanel.transform, true);
+        Shadow.gameObject.SetActive(false);
+        ShadowLTR.gameObject.SetActive(false);
+        Left.transform.SetParent(BookPanel.transform, true);
+        Right.transform.SetParent(BookPanel.transform, true);
+        LeftNext.transform.SetParent(BookPanel.transform, true);
+        RightNext.transform.SetParent(BookPanel.transform, true);
+        Left.gameObject.SetActive(false);
+        Right.gameObject.SetActive(false);
+        UpdateSprites();
+    }
+
     public IEnumerator TweenTo(Vector3 to, float duration, System.Action onFinish)
     {
+        tweening = true;
         int steps = (int)(duration / 0.025f);
         Vector3 displacement = (to - f) / steps;
         for (int i = 0; i < steps-1; i++)
@@ -443,6 +468,7 @@ public class Book : MonoBehaviour {
 
             yield return new WaitForSeconds(0.025f);
         }
+        tweening = false;
         if (onFinish != null)
             onFinish();
     }
